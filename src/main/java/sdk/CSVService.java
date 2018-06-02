@@ -23,7 +23,8 @@ public class CSVService {
         try 
             
          {
-            Writer writer = Files.newBufferedWriter(Paths.get(filepath),StandardOpenOption.APPEND);
+            Writer writer = Files.newBufferedWriter(Paths.get(filepath),StandardOpenOption.CREATE
+            ,StandardOpenOption.APPEND);
 
            /*  ColumnPositionMappingStrategy mappingStrategy = 
                     new ColumnPositionMappingStrategy();
