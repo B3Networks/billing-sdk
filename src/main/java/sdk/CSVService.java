@@ -1,5 +1,6 @@
 package sdk;
 import com.opencsv.CSVWriter;
+import com.opencsv.bean.BeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
@@ -16,7 +17,7 @@ import java.util.List;
 public class CSVService {
 
 
-    public static void write(String filepath)throws IOException,
+    public static void write(String filepath,List<Entry> list)throws IOException,
     CsvDataTypeMismatchException,
     CsvRequiredFieldEmptyException {
 
@@ -26,21 +27,17 @@ public class CSVService {
             Writer writer = Files.newBufferedWriter(Paths.get(filepath),StandardOpenOption.CREATE
             ,StandardOpenOption.APPEND);
 
-           /*  ColumnPositionMappingStrategy mappingStrategy = 
-                    new ColumnPositionMappingStrategy();
-            mappingStrategy.setType(DataEntry.class);
-            StatefulBeanToCsv<DataEntry> beanToCsv = new StatefulBeanToCsvBuilder(writer)
-                    .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER).withMappingStrategy(mappingStrategy)
-                    .build();
-
-            List<DataEntry> data = new ArrayList<>();
-            data.add(new DataEntry("aaaaa"));
-            data.add(new DataEntry("bbbbbbbb"));
-
-            beanToCsv.write(data); */
-            CSVWriter cwriter = new CSVWriter(writer, ',');
+            BeanToCsv bc = new BeanToCsv<Entry>();
+            ColumnPositionMappingStrategy mappingStrategy = 
+            		new ColumnPositionMappingStrategy();
+            mappingStrategy.setType(Entry.class);
+            String[] columns = new String[]{"appName","type"};
+            mappingStrategy.setColumnMapping(columns);
+            CSVWriter csvWriter = new CSVWriter(writer, ',');
+            bc.write(mappingStrategy,csvWriter,list);
+/*             CSVWriter cwriter = new CSVWriter(writer, ',');
             String[] entries = "first#second#third".split("#");
-            cwriter.writeNext(entries);
+            cwriter.writeNext(entries); */
             
             writer.close();
         } catch (Exception ex){
