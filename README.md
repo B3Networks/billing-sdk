@@ -12,5 +12,7 @@ commandName : right now only support "getDataCommand"
 type : voice, sms, dnc, subscription
 
 
-date: yyyy-mm-dd 2018-05-06
+date: in format yyyy-mm-dd . For example 2018-05-06
+
+The output will be put in "type".csv file at the same place of the jar fileß
 
