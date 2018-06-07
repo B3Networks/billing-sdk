@@ -19,7 +19,6 @@ public class GetDataCommand implements Command {
     //args list = apiKey  type  date
     //output to a csv
     public void execute(List<String> args){
-        System.out.println("here get command");
         try {
             String apiKey = args.get(0);
             String type = args.get(1);
@@ -41,7 +40,6 @@ public class GetDataCommand implements Command {
             while (!found){
                 ListEntries list = restTemplate.getForObject(this.getURL(type,i,sdfSource.format(date),apiKey)
                 , ListEntries.class);
-                System.out.println(list.nextId +" "+list.entries.size());
                 if (list.entries.size()==0) {
                     found=true;
                 }
@@ -49,7 +47,7 @@ public class GetDataCommand implements Command {
                     
                 }
                 i=list.nextId;
-                CSVService.write("out.csv",list.entries);
+                CSVService.write(type+".csv",list.entries);
             }
             
         } catch (Exception ex){
