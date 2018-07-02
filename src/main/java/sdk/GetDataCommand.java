@@ -16,6 +16,8 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 public class GetDataCommand implements Command {
 
     String apiPath ="https://api.b3networks.com/data/open/billing/%s/%d?date=%s&apiKey=%s";
+    String apiPathNoDate ="https://api.b3networks.com/data/open/billing/%s/%d?apiKey=%s";
+    String apiBilling = "https://apigateway-public.hoiio.com/billing/private/v3/wallet";
     //args list = apiKey  type  date
     //output to a csv
     public void execute(List<String> args){
@@ -38,16 +40,26 @@ public class GetDataCommand implements Command {
             boolean found =false;
             System.out.println(i);
             while (!found){
-                ListEntries list = restTemplate.getForObject(this.getURL(type,i,sdfSource.format(date),apiKey)
+                ListEntries list = null;
+                if(args.size()>=3){
+                    list = restTemplate.getForObject(this.getURL(type,i,sdfSource.format(date),apiKey)
+                , ListEntries.class); 
+                }
+                else {
+                    list = restTemplate.getForObject(String.format(this.apiPathNoDate, type, i,apiKey)
                 , ListEntries.class);
+                }
+                
+                /* ListEntries list = restTemplate.getForObject(String.format(this.apiPathNoDate, type, i,apiKey)
+                , ListEntries.class); */
                 if (list.entries.size()==0) {
                     found=true;
+                }else {
+                    CSVService.write(type+sdfSource.format(date)+".csv",list.entries);
                 }
-                for (Entry extension :list.entries ){
-                    
-                }
+
                 i=list.nextId;
-                CSVService.write(type+".csv",list.entries);
+                
             }
             
         } catch (Exception ex){

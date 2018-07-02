@@ -13,7 +13,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Map;
+import java.util.stream.Collectors;
 public class CSVService {
 
 
@@ -31,13 +32,34 @@ public class CSVService {
             ColumnPositionMappingStrategy mappingStrategy = 
             		new ColumnPositionMappingStrategy();
             mappingStrategy.setType(Entry.class);
-            String[] columns = new String[]{"appName","type"};
+            String[] columns = new String[]{"orgName","type","invoiceText","startOn","cost","currency","qty"};
             mappingStrategy.setColumnMapping(columns);
             CSVWriter csvWriter = new CSVWriter(writer, ',');
-            bc.write(mappingStrategy,csvWriter,list);
-/*             CSVWriter cwriter = new CSVWriter(writer, ',');
-            String[] entries = "first#second#third".split("#");
-            cwriter.writeNext(entries); */
+
+            
+            Map<String,Long> grp = list.stream().collect(
+                Collectors.groupingBy(
+                    Entry::getUnique, Collectors.counting()
+                )
+            );
+            
+            List<Entry> newlist = new ArrayList<Entry>();
+            for (String key : grp.keySet()){
+                //iterate over keys
+                System.out.println(key+" "+grp.get(key));
+                Entry a = list.stream()
+                .filter(x -> x.getUnique().equalsIgnoreCase(key))
+                .findFirst()
+                .get();
+                a.qty=grp.get(key);
+                newlist.add(a);
+            }
+        
+            bc.write(mappingStrategy,csvWriter,newlist);
+            double sum = newlist.stream().mapToDouble(Entry::getCost).sum();
+            CSVWriter cwriter2 = new CSVWriter(writer, ',');
+            String[] entries = {"Total", sum+""};
+            cwriter2.writeNext(entries); 
             
             writer.close();
         } catch (Exception ex){
